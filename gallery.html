@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery | Kisan Connect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-green: #2e7d32;
+            --light-green: #4caf50;
+            --dark-green: #1b5e20;
+            --accent-orange: #ff6b35;
+            --sunset-orange: #f7931e;
+            --white: #ffffff;
+            --off-white: #f9f9f9;
+            --light-brown: #8d6e63;
+            --dark-brown: #5d4037;
+            --gray: #757575;
+            --light-gray: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.2);
+            --gradient-green: linear-gradient(135deg, var(--primary-green), var(--light-green));
+            --gradient-sunset: linear-gradient(135deg, var(--accent-orange), var(--sunset-orange));
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            color: #333;
+            background-color: var(--off-white);
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeInPage 0.8s ease-out 0.2s forwards;
+        }
+
+        @keyframes fadeInPage {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            padding: 80px 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            color: var(--accent-orange);
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--dark-green);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+            padding: 5px 0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent-orange);
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-sunset);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-green);
+            cursor: pointer;
+        }
+
+        /* Page Transition Overlay */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-green);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .page-transition.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .page-transition .loading-icon {
+            font-size: 3rem;
+            color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Gallery Hero */
+        .gallery-hero {
+            background:
+                linear-gradient(135deg, rgba(76, 175, 80, 0.9), rgba(46, 125, 50, 0.8)),
+                url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            color: white;
+            text-align: center;
+            padding: 120px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 25% 25%, rgba(255, 107, 53, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(247, 147, 30, 0.2) 0%, transparent 50%);
+            animation: float 12s ease-in-out infinite;
+        }
+
+        .gallery-content {
+            position: relative;
+            z-index: 2;
+            animation: slideUp 1s ease-out;
+        }
+
+        .gallery-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .gallery-content p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* Gallery Grid */
+        .gallery-showcase {
+            background:
+                radial-gradient(circle at 25% 25%, rgba(76, 175, 80, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
+            position: relative;
+            overflow: hidden;
+            padding: 100px 0;
+        }
+
+        .gallery-showcase::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="%234caf50" opacity="0.1"/></svg>');
+            opacity: 0.3;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .gallery-item {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow:
+                0 15px 35px rgba(0, 0, 0, 0.1),
+                0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        .gallery-item:nth-child(1) { animation-delay: 0.1s; }
+        .gallery-item:nth-child(2) { animation-delay: 0.2s; }
+        .gallery-item:nth-child(3) { animation-delay: 0.3s; }
+        .gallery-item:nth-child(4) { animation-delay: 0.4s; }
+        .gallery-item:nth-child(5) { animation-delay: 0.5s; }
+
+        .gallery-item:hover {
+            transform: translateY(-20px) scale(1.03) rotate(1deg);
+            box-shadow:
+                0 30px 60px rgba(0, 0, 0, 0.2),
+                0 15px 30px rgba(76, 175, 80, 0.15);
+        }
+
+        .gallery-item:hover::before {
+            opacity: 1;
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 300px;
+            background:
+                linear-gradient(135deg, var(--primary-green), var(--light-green)),
+                radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.2), transparent 50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-image::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: shimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) rotate(180deg); }
+        }
+
+        .gallery-content {
+            padding: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .gallery-title {
+            color: var(--dark-green);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .gallery-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 0;
+            height: 4px;
+            background: var(--gradient-green);
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        .gallery-item:hover .gallery-title::after {
+            width: 100%;
+        }
+
+        .gallery-description {
+            color: var(--gray);
+            font-size: 1rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .gallery-prompt {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(255, 107, 53, 0.1));
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .gallery-prompt h4 {
+            color: var(--dark-green);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .gallery-prompt p {
+            color: var(--gray);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin: 0;
+            font-style: italic;
+        }
+
+        /* Call to Action */
+        .gallery-cta {
+            background: var(--gradient-green);
+            color: white;
+            text-align: center;
+            padding: 80px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)" opacity="0.3"/></svg>');
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-text {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .btn {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-bounce);
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: var(--shadow-xl);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background-color: var(--white);
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition);
+                z-index: 999;
+            }
+
+            nav ul.show {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+
+            nav ul li {
+                margin: 15px 0;
+            }
+
+            .gallery-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .gallery-item {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Transition Overlay -->
+    <div class="page-transition" id="pageTransition">
+        <div class="loading-icon">
+            <i class="fas fa-images"></i>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo" onclick="navigateTo('index.html')">
+                <i class="fas fa-tractor"></i>
+                Kisan Connect
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul id="navMenu">
+                    <li><a onclick="navigateTo('index.html')">Home</a></li>
+                    <li><a onclick="navigateTo('farmers.html')">Farmers</a></li>
+                    <li><a onclick="navigateTo('buyers.html')">Buyers</a></li>
+                    <li><a onclick="navigateTo('gallery.html')">Gallery</a></li>
+                    <li><a onclick="navigateTo('about.html')">About</a></li>
+                    <li><a onclick="navigateTo('contact.html')">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Gallery Hero Section -->
+    <section class="gallery-hero">
+        <div class="container">
+            <div class="gallery-content">
+                <h1>Our Vision Gallery</h1>
+                <p>Explore the concepts that drive Kisan Connect - where farmers and buyers connect directly for fair, transparent trade.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Showcase -->
+    <section class="gallery-showcase">
+        <div class="container">
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <div class="gallery-image">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="gallery-content">
+                        <h3 class="gallery-title">Direct Market Connection</h3>
+                        <p class="gallery-description">Traditional farmers meeting modern customers in open village markets, building trust through direct interaction and fresh produce exchange.</p>
+                        <div class="gallery-prompt">
+                            <h4>AI Generation Prompt:</h4>
+                            <p>"A rural Indian farmer wearing traditional clothes handing fresh vegetables to a customer in an open village market, baskets of tomatoes, onions, and green vegetables around, smiling faces, natural sunlight, realistic style, high detail, warm colors"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <div class="gallery-image">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="gallery-content">
+                        <h3 class="gallery-title">Digital Agriculture Platform</h3>
+                        <p class="gallery-description">Farmers embracing technology while maintaining traditional values, using smartphones to connect with customers worldwide through innovative marketplace apps.</p>
+                        <div class="gallery-prompt">
+                            <h4>AI Generation Prompt:</h4>
+                            <p>"An Indian farmer holding a smartphone showing a farming marketplace app while a customer selects fresh produce online, modern agriculture, digital farming concept, rural background mixed with technology, realistic illustration"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <div class="gallery-image">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="gallery-content">
+                        <h3 class="gallery-title">Organic Farming Excellence</h3>
+                        <p class="gallery-description">Dedicated organic farmers showcasing sustainable practices, providing customers with chemical-free, nutritious produce grown with care and environmental consciousness.</p>
+                        <div class="gallery-prompt">
+                            <h4>AI Generation Prompt:</h4>
+                            <p>"A happy organic farmer standing in a green farm field with a customer choosing fresh organic vegetables, eco-friendly farming, sustainable agriculture, bright daylight, realistic photography style"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <div class="gallery-image">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="gallery-content">
+                        <h3 class="gallery-title">Trust & Fair Trade</h3>
+                        <p class="gallery-description">Building lasting relationships based on mutual trust, where farmers receive fair compensation and customers get quality produce at reasonable prices.</p>
+                        <div class="gallery-prompt">
+                            <h4>AI Generation Prompt:</h4>
+                            <p>"Farmer and customer shaking hands in a farm, symbol of trust and fair trade, crops growing in background, Indian rural landscape, cinematic lighting, ultra-realistic"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <div class="gallery-image">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="gallery-content">
+                        <h3 class="gallery-title">Family-to-Family Trading</h3>
+                        <p class="gallery-description">Farmers selling directly to families, creating personal connections and ensuring that fresh, farm-grown produce reaches homes without unnecessary intermediaries.</p>
+                        <div class="gallery-prompt">
+                            <h4>AI Generation Prompt:</h4>
+                            <p>"Indian farmer selling farm-fresh fruits and vegetables directly to a family customer, traditional market setup, colorful produce, happy expressions, detailed realistic scene"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="gallery-cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to Bring These Visions to Life?</h2>
+                <p class="cta-text">Use the AI prompts above to generate stunning images for your gallery. Each concept represents the core values of Kisan Connect.</p>
+                <button onclick="navigateTo('farmers.html')" class="btn">Join as Farmer</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Page Navigation with Animation
+        function navigateTo(page) {
+            const transition = document.getElementById('pageTransition');
+            transition.classList.add('active');
+
+            setTimeout(() => {
+                window.location.href = page;
+            }, 800);
+        }
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navMenu = document.getElementById('navMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('show');
+            mobileMenuBtn.innerHTML = navMenu.classList.contains('show')
+                ? '<i class="fas fa-times"></i>'
+                : '<i class="fas fa-bars"></i>';
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('show');
+                mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        });
+    </script>
+</body>
+</html>
