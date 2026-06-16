@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | Kisan Connect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --Dark-Black: #010901;
+            --light-green: #4caf50;
+            --dark-green: #1b5e20;
+            --accent-orange: #ff6b35;
+            --sunset-orange: #f7931e;
+            --white: #ffffff;
+            --off-white: #f9f9f9;
+            --light-brown: #8d6e63;
+            --dark-brown: #5d4037;
+            --gray: #757575;
+            --light-gray: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.2);
+            --gradient-green: linear-gradient(135deg, var(--primary-green), var(--light-green));
+            --gradient-sunset: linear-gradient(135deg, var(--accent-orange), var(--sunset-orange));
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            color: #333;
+            background-color: var(--off-white);
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeInPage 0.8s ease-out 0.2s forwards;
+        }
+
+        @keyframes fadeInPage {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            padding: 80px 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            color: var(--accent-orange);
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--dark-green);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+            padding: 5px 0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent-orange);
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-sunset);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-green);
+            cursor: pointer;
+        }
+
+        /* Page Transition Overlay */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-green);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .page-transition.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .page-transition .loading-icon {
+            font-size: 3rem;
+            color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* About Hero */
+        .about-hero {
+            background:
+                linear-gradient(135deg, rgba(247, 147, 30, 0.9), rgba(255, 107, 53, 0.8)),
+                url('https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            color: white;
+            text-align: center;
+            padding: 120px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(46, 125, 50, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(76, 175, 80, 0.3) 0%, transparent 50%);
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .about-content {
+            position: relative;
+            z-index: 2;
+            animation: slideUp 1s ease-out;
+        }
+
+        .about-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .about-content p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Mission Section */
+        .mission-section {
+            background: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mission-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(76, 175, 80, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
+        }
+
+        .mission-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .mission-text h2 {
+            font-size: 2.5rem;
+            color: var(--dark-green);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .mission-text h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-green);
+            border-radius: 2px;
+        }
+
+        .mission-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--gray);
+            margin-bottom: 25px;
+        }
+
+        .mission-image {
+            position: relative;
+        }
+
+        .mission-image img {
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: var(--shadow-xl);
+            animation: fadeInScale 1s ease-out 0.3s both;
+        }
+
+        /* Values Section */
+        .values-section {
+            background: var(--off-white);
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .value-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: fadeInUp 0.8s ease-out both;
+        }
+
+        .value-card:nth-child(1) { animation-delay: 0.1s; }
+        .value-card:nth-child(2) { animation-delay: 0.2s; }
+        .value-card:nth-child(3) { animation-delay: 0.3s; }
+        .value-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .value-card:hover {
+            transform: translateY(-15px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .value-icon {
+            font-size: 4rem;
+            color: var(--primary-green);
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .value-title {
+            font-size: 1.5rem;
+            color: var(--dark-green);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .value-description {
+            color: var(--gray);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Impact Section */
+        .impact-section {
+            background: var(--gradient-green);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .impact-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)" opacity="0.3"/></svg>');
+        }
+
+        .impact-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .impact-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .impact-text {
+            font-size: 1.2rem;
+            margin-bottom: 50px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .impact-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .impact-stat {
+            animation: countUp 2s ease-out both;
+        }
+
+        .impact-stat:nth-child(1) { animation-delay: 0.1s; }
+        .impact-stat:nth-child(2) { animation-delay: 0.2s; }
+        .impact-stat:nth-child(3) { animation-delay: 0.3s; }
+        .impact-stat:nth-child(4) { animation-delay: 0.4s; }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: var(--gradient-sunset);
+            color: white;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .cta-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-content p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .btn {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-bounce);
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: var(--shadow-xl);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background-color: var(--white);
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition);
+                z-index: 999;
+            }
+
+            nav ul.show {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+
+            nav ul li {
+                margin: 15px 0;
+            }
+
+            .about-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .mission-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .impact-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Transition Overlay -->
+    <div class="page-transition" id="pageTransition">
+        <div class="loading-icon">
+            <i class="fas fa-info-circle"></i>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo" onclick="navigateTo('index.html')">
+                <i class="fas fa-tractor"></i>
+                Kisan Connect
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul id="navMenu">
+                    <li><a onclick="navigateTo('index.html')">Home</a></li>
+                    <li><a onclick="navigateTo('farmers.html')">Farmers</a></li>
+                    <li><a onclick="navigateTo('buyers.html')">Buyers</a></li>
+                    <li><a onclick="navigateTo('gallery.html')">Gallery</a></li>
+                    <li><a onclick="navigateTo('about.html')">About</a></li>
+                    <li><a onclick="navigateTo('contact.html')">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- About Hero Section -->
+    <section class="about-hero">
+        <div class="container">
+            <div class="about-content">
+                <h1>About Kisan Connect</h1>
+                <p>Revolutionizing agriculture by connecting farmers directly with buyers, eliminating middlemen and ensuring fair prices for everyone.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="mission-section">
+        <div class="container">
+            <div class="mission-content">
+                <div class="mission-text">
+                    <h2>Our Mission</h2>
+                    <p>Kisan Connect is dedicated to transforming the agricultural landscape by creating direct connections between farmers and buyers. We believe that fair trade and transparent pricing are essential for sustainable agriculture and food security.</p>
+                    <p>By removing intermediaries from the supply chain, we ensure that farmers receive fair compensation for their hard work while buyers get access to fresh, quality produce at reasonable prices.</p>
+                    <p>Our platform empowers farmers with technology and market access, while providing buyers with a reliable source of farm-fresh produce directly from the source.</p>
+                </div>
+                <div class="mission-image">
+                    <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" alt="Farmers working together">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values-section">
+        <div class="container">
+            <h2 style="text-align: center; font-size: 2.5rem; color: var(--dark-green); margin-bottom: 60px;">Our Core Values</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <i class="fas fa-handshake value-icon"></i>
+                    <h3 class="value-title">Direct Connection</h3>
+                    <p class="value-description">We believe in eliminating middlemen and connecting farmers directly with buyers for transparent, fair trade relationships.</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-balance-scale value-icon"></i>
+                    <h3 class="value-title">Fair Pricing</h3>
+                    <p class="value-description">Ensuring farmers receive fair compensation while providing buyers with quality produce at reasonable prices.</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-leaf value-icon"></i>
+                    <h3 class="value-title">Quality Assurance</h3>
+                    <p class="value-description">Promoting sustainable farming practices and ensuring the highest quality produce reaches consumers.</p>
+                </div>
+                <div class="value-card">
+                    <i class="fas fa-users value-icon"></i>
+                    <h3 class="value-title">Community Building</h3>
+                    <p class="value-description">Creating a supportive community where farmers and buyers can build lasting relationships based on trust and mutual benefit.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section class="impact-section">
+        <div class="container">
+            <div class="impact-content">
+                <h2 class="impact-title">Our Impact</h2>
+                <p class="impact-text">Since our inception, Kisan Connect has been making a real difference in the lives of farmers and the quality of produce available to consumers.</p>
+
+                <div class="impact-stats">
+                    <div class="impact-stat">
+                        <div class="stat-number">10,000+</div>
+                        <div class="stat-label">Active Farmers</div>
+                    </div>
+                    <div class="impact-stat">
+                        <div class="stat-number">50,000+</div>
+                        <div class="stat-label">Successful Trades</div>
+                    </div>
+                    <div class="impact-stat">
+                        <div class="stat-number">₹25L+</div>
+                        <div class="stat-label">Farmer Earnings</div>
+                    </div>
+                    <div class="impact-stat">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">Satisfaction Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Join Our Growing Community</h2>
+                <p>Be part of the agricultural revolution. Connect, trade, and grow together.</p>
+                <button onclick="navigateTo('farmers.html')" class="btn">Join as Farmer</button>
+                <button onclick="navigateTo('buyers.html')" class="btn" style="margin-left: 20px;">Join as Buyer</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Page Navigation with Animation
+        function navigateTo(page) {
+            const transition = document.getElementById('pageTransition');
+            transition.classList.add('active');
+
+            setTimeout(() => {
+                window.location.href = page;
+            }, 800);
+        }
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navMenu = document.getElementById('navMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('show');
+            mobileMenuBtn.innerHTML = navMenu.classList.contains('show')
+                ? '<i class="fas fa-times"></i>'
+                : '<i class="fas fa-bars"></i>';
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('show');
+                mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        });
+    </script>
+</body>
+</html>
