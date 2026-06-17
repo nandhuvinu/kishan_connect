@@ -89,16 +89,9 @@ kisan-connect/
 ├── server.js               # Express server (Node.js backend)
 ├── package.json            # Node.js dependencies
 ├── image-prompts.txt       # AI image generation prompts
-├── farmers.json            # Farmer registration data storage
-├── buyers.json             # Buyer registration data storage
-├── contacts.json           # Contact messages storage
-├── images/                 # Gallery images (to be added)
-│   ├── gallery-1.jpg
-│   ├── gallery-2.jpg
-│   ├── gallery-3.jpg
-│   ├── gallery-4.jpg
-│   └── gallery-5.jpg
-└── README.md              # This file
+├── kisan_connect.db        # SQLite database storage
+├── images/                 # Gallery images (optional; add your own)
+└── README.md               # This file
 ```
 
 ## API Endpoints
@@ -109,13 +102,14 @@ kisan-connect/
 - `GET /api/farmers` - Get all farmers
 - `GET /api/buyers` - Get all buyers
 - `GET /api/contacts` - Get all contact messages
-- `GET /api/matches/:cropType` - Get farmers and buyers for a specific crop
+- `GET /api/sellers` - Get all farmer sellers
+- `GET /api/buyers/demands` - Get all buyer demands
 
 ## Technology Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Backend**: Node.js, Express.js
-- **Data Storage**: JSON files (for development/demo)
+- **Data Storage**: SQLite database (`kisan_connect.db`)
 - **Icons**: Font Awesome
 - **Styling**: CSS Grid, Flexbox, Custom CSS
 

@@ -168,6 +168,25 @@ function verifyToken(token) {
   }
 }
 
+function isValidEmail(email) {
+  return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidPhone(phone) {
+  const digits = String(phone).replace(/\D/g, '');
+  return /^[0-9]{10,15}$/.test(digits);
+}
+
+function parsePositiveInt(value) {
+  const parsed = parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function parsePositiveFloat(value) {
+  const parsed = parseFloat(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
 // Pagination helper
 function paginate(page = 1, limit = 20) {
   const offset = (page - 1) * limit;
@@ -235,6 +254,18 @@ app.post('/api/farmers', (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
   }
 
+  const quantityValue = parsePositiveInt(quantity);
+  const priceValue = parsePositiveFloat(price);
+  const cleanedPhone = String(phoneNumber).replace(/\D/g, '');
+
+  if (quantityValue === null || priceValue === null) {
+    return res.status(400).json({ error: 'Quantity and price must be valid positive numbers' });
+  }
+
+  if (!isValidPhone(cleanedPhone)) {
+    return res.status(400).json({ error: 'Phone number must contain 10 to 15 digits' });
+  }
+
   const id = Date.now().toString();
 
   try {
@@ -243,12 +274,12 @@ app.post('/api/farmers', (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
-    stmt.run(id, farmerName, villageDistrict, phoneNumber, cropType, parseInt(quantity), parseFloat(price), getTimestamp());
+    stmt.run(id, farmerName, villageDistrict, cleanedPhone, cropType, quantityValue, priceValue, getTimestamp());
 
     res.status(201).json({
       message: 'Farmer registered successfully',
       redirectUrl: `/farmer-dashboard.html?id=${id}`,
-      farmer: { id, farmerName, villageDistrict, phoneNumber, cropType, quantity: parseInt(quantity), price: parseFloat(price), registeredAt: getTimestamp() }
+      farmer: { id, farmerName, villageDistrict, phoneNumber: cleanedPhone, cropType, quantity: quantityValue, price: priceValue, registeredAt: getTimestamp() }
     });
   } catch (error) {
     console.error('Error registering farmer:', error);
@@ -258,10 +289,22 @@ app.post('/api/farmers', (req, res) => {
 
 // Buyer registration
 app.post('/api/buyers', (req, res) => {
-  const { buyerName, password, businessName, buyerPhone, requiredCrop, quantityNeeded } = req.body;
+  const { buyerName, password = '', businessName, buyerPhone, requiredCrop, quantityNeeded } = req.body;
 
-  if (!buyerName || !password) {
-    return res.status(400).json({ error: 'Buyer name and password are required' });
+  if (!buyerName || !businessName || !buyerPhone || !requiredCrop || !quantityNeeded) {
+    return res.status(400).json({ error: 'All fields are required for buyer registration' });
+  }
+
+  const quantityValue = parsePositiveInt(quantityNeeded);
+  const cleanedPhone = String(buyerPhone).replace(/\D/g, '');
+  const passwordValue = typeof password === 'string' ? password : '';
+
+  if (quantityValue === null) {
+    return res.status(400).json({ error: 'Quantity needed must be a valid positive number' });
+  }
+
+  if (!isValidPhone(cleanedPhone)) {
+    return res.status(400).json({ error: 'Phone number must contain 10 to 15 digits' });
   }
 
   const id = Date.now().toString();
@@ -272,12 +315,12 @@ app.post('/api/buyers', (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
-    stmt.run(id, buyerName, password, businessName, buyerPhone, requiredCrop, parseInt(quantityNeeded || 0), getTimestamp());
+    stmt.run(id, buyerName, passwordValue, businessName, cleanedPhone, requiredCrop, quantityValue, getTimestamp());
 
     res.status(201).json({
       message: 'Buyer registered successfully',
       redirectUrl: `/buyer-market.html?id=${id}`,
-      buyer: { id, buyerName, password, businessName, buyerPhone, requiredCrop, quantityNeeded: parseInt(quantityNeeded || 0), registeredAt: getTimestamp() }
+      buyer: { id, buyerName, businessName, buyerPhone: cleanedPhone, requiredCrop, quantityNeeded: quantityValue, registeredAt: getTimestamp() }
     });
   } catch (error) {
     console.error('Error registering buyer:', error);
@@ -291,6 +334,10 @@ app.post('/api/contact', (req, res) => {
 
   if (!contactName || !contactEmail || !contactSubject || !contactMessage) {
     return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  if (!isValidEmail(contactEmail)) {
+    return res.status(400).json({ error: 'A valid email address is required' });
   }
 
   const id = Date.now().toString();
