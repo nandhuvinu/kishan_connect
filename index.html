@@ -477,6 +477,9 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(255, 255, 255, 0.8);
             position: relative;
+            /* GPU acceleration for smooth animations */
+            will-change: transform, box-shadow;
+            transform: translateZ(0);
         }
 
         .gallery-item::before {
@@ -1258,8 +1261,11 @@
 
         function showMessage(element, message) {
             if (!element) return;
-            element.textContent = message;
-            element.style.display = message ? 'block' : 'none';
+            // Use requestAnimationFrame for better performance
+            requestAnimationFrame(() => {
+                element.textContent = message;
+                element.style.display = message ? 'block' : 'none';
+            });
         }
 
         mobileMenuBtn.addEventListener('click', () => {
@@ -1300,6 +1306,9 @@
         // Form Submission Handling
         document.getElementById('farmerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            // Disable button to prevent double submissions
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
 
             const formData = new FormData(this);
             const successMessage = document.getElementById('farmerSuccessMessage');
@@ -1342,11 +1351,16 @@
                 console.error('Error:', error);
                 showMessage(errorMessage, 'An error occurred. Please try again.');
                 errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
             }
         });
 
         document.getElementById('buyerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
 
             const formData = new FormData(this);
             const successMessage = document.getElementById('buyerSuccessMessage');
@@ -1388,11 +1402,15 @@
                 console.error('Error:', error);
                 showMessage(errorMessage, 'An error occurred. Please try again.');
                 errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } finally {
+                submitBtn.disabled = false;
             }
         });
 
         document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
 
             const formData = new FormData(this);
             const successMessage = document.getElementById('contactSuccessMessage');
@@ -1433,6 +1451,8 @@
                 console.error('Error:', error);
                 showMessage(errorMessage, 'An error occurred. Please try again.');
                 errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } finally {
+                submitBtn.disabled = false;
             }
         });
 

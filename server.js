@@ -5,10 +5,25 @@ const path = require('path');
 const crypto = require('crypto');
 const Database = require('better-sqlite3');
 
+/**
+ * Kisan Connect Backend Server
+ * A comprehensive agricultural marketplace platform connecting farmers directly with buyers.
+ * 
+ * Features:
+ * - Farmer and buyer registration with validation
+ * - Contact form submission handling
+ * - Real-time farmer-buyer matching
+ * - Rate limiting for API protection
+ * - SQLite database with WAL mode for concurrent access
+ * - Comprehensive error handling and logging
+ */
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Rate limiting configuration
+// ==========================================
+// RATE LIMITING & SECURITY CONFIGURATION
+// ==========================================
 const rateLimit = new Map();
 const MAX_REQUESTS = 100;
 const WINDOW_MS = 60000; // 1 minute
@@ -141,19 +156,40 @@ for (const migration of migrations) {
 
 console.log('✅ Database initialized with indexes for optimized queries');
 
-// Helper functions
+// ==========================================
+// UTILITY & HELPER FUNCTIONS
+// ==========================================
+
+/**
+ * Get ISO 8601 timestamp for database records
+ * @returns {string} ISO timestamp string
+ */
 function getTimestamp() {
   return new Date().toISOString();
 }
 
+/**
+ * Hash password using SHA256
+ * @param {string} password - Plain text password to hash
+ * @returns {string} SHA256 hash hex string
+ */
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
+/**
+ * Generate cryptographically secure random token
+ * @returns {string} Random hex token (64 characters)
+ */
 function generateToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
+/**
+ * Verify session token validity and expiration
+ * @param {string} token - Session token to verify
+ * @returns {object|null} Session object if valid, null if invalid or expired
+ */
 function verifyToken(token) {
   try {
     const session = db.prepare('SELECT * FROM sessions WHERE token = ?').get(token);
@@ -168,34 +204,62 @@ function verifyToken(token) {
   }
 }
 
+/**
+ * Validate email format using regex pattern
+ * @param {string} email - Email address to validate
+ * @returns {boolean} True if valid email format
+ */
 function isValidEmail(email) {
   return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+/**
+ * Validate phone number (10-15 digits)
+ * @param {string|number} phone - Phone number to validate
+ * @returns {boolean} True if valid phone format
+ */
 function isValidPhone(phone) {
   const digits = String(phone).replace(/\D/g, '');
   return /^[0-9]{10,15}$/.test(digits);
 }
 
+/**
+ * Parse and validate positive integer
+ * @param {any} value - Value to parse
+ * @returns {number|null} Positive integer or null if invalid
+ */
 function parsePositiveInt(value) {
   const parsed = parseInt(value, 10);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
+/**
+ * Parse and validate positive float
+ * @param {any} value - Value to parse
+ * @returns {number|null} Positive float or null if invalid
+ */
 function parsePositiveFloat(value) {
   const parsed = parseFloat(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
-// Pagination helper
+/**
+ * Calculate pagination offset and limit
+ * @param {number} page - Page number (1-indexed)
+ * @param {number} limit - Items per page (capped at 100)
+ * @returns {object} {limit, offset} for database queries
+ */
 function paginate(page = 1, limit = 20) {
   const offset = (page - 1) * limit;
   return { limit: Math.min(limit, 100), offset };
 }
 
-// API Routes
-
+// ==========================================
+// API ROUTES - CORE ENDPOINTS
+// ==========================================
 // Get all farmers
+// @route    GET /api/farmers
+// @returns  Array of farmer records with crop details
 app.get('/api/farmers', (req, res) => {
   try {
     const farmers = db.prepare('SELECT * FROM farmers').all();
@@ -246,7 +310,13 @@ app.post('/api/farmers/register', (req, res) => {
   }
 });
 
-// Farmer registration (old format for backward compatibility)
+// ==========================================
+// FARMER REGISTRATION ROUTES
+// ==========================================
+// Register a new farmer (primary endpoint)
+// @route    POST /api/farmers
+// @body     {farmerName, villageDistrict, phoneNumber, cropType, quantity, price}
+// @validates Phone number (10-15 digits), positive quantity, positive price
 app.post('/api/farmers', (req, res) => {
   const { farmerName, villageDistrict, phoneNumber, cropType, quantity, price } = req.body;
 
@@ -287,7 +357,13 @@ app.post('/api/farmers', (req, res) => {
   }
 });
 
-// Buyer registration
+// ==========================================
+// BUYER REGISTRATION ROUTES
+// ==========================================
+// Register a new buyer
+// @route    POST /api/buyers
+// @body     {buyerName, businessName, buyerPhone, requiredCrop, quantityNeeded}
+// @validates Phone number (10-15 digits), positive quantity
 app.post('/api/buyers', (req, res) => {
   const { buyerName, password = '', businessName, buyerPhone, requiredCrop, quantityNeeded } = req.body;
 
@@ -328,7 +404,13 @@ app.post('/api/buyers', (req, res) => {
   }
 });
 
-// Contact form submission
+// ==========================================
+// CONTACT FORM ROUTES
+// ==========================================
+// Submit contact form message
+// @route    POST /api/contact
+// @body     {contactName, contactEmail, contactSubject, contactMessage}
+// @validates Email format validation
 app.post('/api/contact', (req, res) => {
   const { contactName, contactEmail, contactSubject, contactMessage } = req.body;
 
@@ -950,7 +1032,17 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start server
+// ==========================================
+// SERVER INITIALIZATION & STARTUP
+// ==========================================
+
+/**
+ * Start the Express server on configured port
+ * Features:
+ * - Binds to all network interfaces (0.0.0.0) for remote access
+ * - Automatic port fallback if primary port is in use
+ * - Graceful error handling and logging
+ */
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Kisan Connect server running on:`);
   console.log(`   Local: http://localhost:${PORT}`);
@@ -958,6 +1050,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`📊 Database: ${path.join(__dirname, 'kisan_connect.db')}`);
 });
 
+// Error handling for port conflicts
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     const newPort = parseInt(PORT) + 1;
@@ -973,4 +1066,4 @@ server.on('error', (err) => {
     console.error('Server error:', err);
     process.exit(1);
   }
-});
+}););
