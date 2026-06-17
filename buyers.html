@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buyer Registration | Kisan Connect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-green: #2e7d32;
+            --light-green: #4caf50;
+            --dark-green: #1b5e20;
+            --accent-orange: #ff6b35;
+            --sunset-orange: #f7931e;
+            --white: #ffffff;
+            --off-white: #f9f9f9;
+            --light-brown: #8d6e63;
+            --dark-brown: #5d4037;
+            --gray: #757575;
+            --light-gray: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.2);
+            --gradient-green: linear-gradient(135deg, var(--primary-green), var(--light-green));
+            --gradient-sunset: linear-gradient(135deg, var(--accent-orange), var(--sunset-orange));
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            color: #333;
+            background-color: var(--off-white);
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeInPage 0.8s ease-out 0.2s forwards;
+        }
+
+        @keyframes fadeInPage {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            padding: 80px 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            color: var(--accent-orange);
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--dark-green);
+            font-weight: 600;
+            font-size: 1rem;
+            transition: var(--transition);
+            padding: 5px 0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent-orange);
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-sunset);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-green);
+            cursor: pointer;
+        }
+
+        /* Page Transition Overlay */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-sunset);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .page-transition.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .page-transition .loading-icon {
+            font-size: 3rem;
+            color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Buyers Section */
+        .buyers-hero {
+            background:
+                linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(247, 147, 30, 0.8)),
+                url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            color: white;
+            text-align: center;
+            padding: 120px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .buyers-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 30% 70%, rgba(46, 125, 50, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(76, 175, 80, 0.3) 0%, transparent 50%);
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .buyers-content {
+            position: relative;
+            z-index: 2;
+            animation: slideUp 1s ease-out;
+        }
+
+        .buyers-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .buyers-content p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .buyers-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 0.8s ease-out both;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .feature-description {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .form-container {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            width: 100%;
+            animation: slideIn 0.8s ease-out 0.5s both;
+        }
+
+        .form-title {
+            color: var(--dark-green);
+            margin-bottom: 30px;
+            font-size: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .form-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--gradient-sunset);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark-brown);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--accent-orange);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            position: relative;
+            overflow: hidden;
+            background: var(--gradient-sunset);
+            border: none;
+            color: white;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-bounce);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            text-align: center;
+            border: 1px solid #ffeaa7;
+            display: none;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background-color: var(--white);
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition);
+                z-index: 999;
+            }
+
+            nav ul.show {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+
+            nav ul li {
+                margin: 15px 0;
+            }
+
+            .buyers-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .buyers-features {
+                grid-template-columns: 1fr;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Transition Overlay -->
+    <div class="page-transition" id="pageTransition">
+        <div class="loading-icon">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo" onclick="navigateTo('index.html')">
+                <i class="fas fa-tractor"></i>
+                Kisan Connect
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul id="navMenu">
+                    <li><a onclick="navigateTo('index.html')">Home</a></li>
+                    <li><a onclick="navigateTo('farmers.html')">Farmers</a></li>
+                    <li><a onclick="navigateTo('buyers.html')">Buyers</a></li>
+                    <li><a onclick="navigateTo('gallery.html')">Gallery</a></li>
+                    <li><a onclick="navigateTo('about.html')">About</a></li>
+                    <li><a onclick="navigateTo('contact.html')">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Buyers Hero Section -->
+    <section class="buyers-hero">
+        <div class="container">
+            <div class="buyers-content">
+                <h1>Find Fresh Produce Directly</h1>
+                <p>Connect with farmers, discover quality crops, and get the best prices without intermediaries.</p>
+
+                <div class="buyers-features">
+                    <div class="feature-card">
+                        <i class="fas fa-search feature-icon"></i>
+                        <h3 class="feature-title">Find Crops</h3>
+                        <p class="feature-description">Browse through a wide variety of fresh produce from local farmers in your area.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-handshake feature-icon"></i>
+                        <h3 class="feature-title">Direct Connect</h3>
+                        <p class="feature-description">Contact farmers directly and negotiate fair prices for your business needs.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-truck feature-icon"></i>
+                        <h3 class="feature-title">Quality Delivery</h3>
+                        <p class="feature-description">Get fresh, quality produce delivered straight from farm to your doorstep.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Form Section -->
+    <section>
+        <div class="container">
+            <div class="form-container">
+                <h3 class="form-title" id="formTitle">Buyer Login</h3>
+
+                <!-- Toggle between Login and Register -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <a href="#" onclick="showForm('login'); return false;" id="loginToggle"
+                        style="color: var(--accent-orange); font-weight: 600;">Login</a>
+                    <span style="margin: 0 10px; color: var(--gray);">|</span>
+                    <a href="#" onclick="showForm('register'); return false;" id="registerToggle"
+                        style="color: var(--gray);">Register New Account</a>
+                </div>
+
+                <form id="buyerForm">
+                    <!-- Login fields (shown when mode is login) -->
+                    <div id="loginFields">
+                        <div class="form-group">
+                            <label for="buyerName">Name</label>
+                            <input type="text" id="buyerName" name="buyerName" placeholder="Enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Registration fields (shown when mode is register) -->
+                    <div id="registerFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="buyerNameReg">Buyer Name</label>
+                            <input type="text" id="buyerNameReg" name="buyerName" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="passwordReg">Password</label>
+                            <input type="password" id="passwordReg" name="password" placeholder="Create a password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="businessName">Business / Shop Name</label>
+                            <input type="text" id="businessName" name="businessName" placeholder="Enter your business name">
+                        </div>
+                        <div class="form-group">
+                            <label for="buyerPhone">Phone Number</label>
+                            <input type="tel" id="buyerPhone" name="buyerPhone" placeholder="Enter your phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="requiredCrop">Required Crop</label>
+                            <select id="requiredCrop" name="requiredCrop">
+                                <option value="" disabled selected>Select crop type</option>
+                                <option value="wheat">Wheat</option>
+                                <option value="rice">Rice</option>
+                                <option value="corn">Corn</option>
+                                <option value="sugarcane">Sugarcane</option>
+                                <option value="cotton">Cotton</option>
+                                <option value="vegetables">Vegetables</option>
+                                <option value="fruits">Fruits</option>
+                                <option value="pulses">Pulses</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantityNeeded">Quantity Needed (in kg)</label>
+                            <input type="number" id="quantityNeeded" name="quantityNeeded" placeholder="Enter quantity needed">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="submitBtn">Login as Buyer</button>
+                </form>
+                
+                <div class="error-message" id="buyerErrorMessage" style="display: none;">
+                </div>
+                <div class="success-message" id="buyerSuccessMessage">
+                    Login successful! Redirecting...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Page Navigation with Animation
+        function navigateTo(page) {
+            const transition = document.getElementById('pageTransition');
+            transition.classList.add('active');
+
+            setTimeout(() => {
+                window.location.href = page;
+            }, 800);
+        }
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navMenu = document.getElementById('navMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('show');
+            mobileMenuBtn.innerHTML = navMenu.classList.contains('show')
+                ? '<i class="fas fa-times"></i>'
+                : '<i class="fas fa-bars"></i>';
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('show');
+                mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            });
+        });
+
+        // Form toggle between Login and Register
+        let currentMode = 'login';
+
+        function showForm(mode) {
+            currentMode = mode;
+            const formTitle = document.getElementById('formTitle');
+            const loginToggle = document.getElementById('loginToggle');
+            const registerToggle = document.getElementById('registerToggle');
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('buyerSuccessMessage');
+            const errorMessage = document.getElementById('buyerErrorMessage');
+            const loginFields = document.getElementById('loginFields');
+            const registerFields = document.getElementById('registerFields');
+
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            if (mode === 'login') {
+                formTitle.textContent = 'Buyer Login';
+                loginToggle.style.color = 'var(--accent-orange)';
+                loginToggle.style.fontWeight = '600';
+                registerToggle.style.color = 'var(--gray)';
+                registerToggle.style.fontWeight = '400';
+                submitBtn.textContent = 'Login as Buyer';
+                loginFields.style.display = 'block';
+                registerFields.style.display = 'none';
+                // Enable login fields, disable register fields to skip HTML5 validation
+                loginFields.querySelectorAll('input, select').forEach(el => el.disabled = false);
+                registerFields.querySelectorAll('input, select').forEach(el => el.disabled = true);
+            } else {
+                formTitle.textContent = 'Buyer Registration';
+                loginToggle.style.color = 'var(--gray)';
+                loginToggle.style.fontWeight = '400';
+                registerToggle.style.color = 'var(--accent-orange)';
+                registerToggle.style.fontWeight = '600';
+                submitBtn.textContent = 'Register as Buyer';
+                loginFields.style.display = 'none';
+                registerFields.style.display = 'block';
+                // Disable login fields, enable register fields to skip HTML5 validation
+                loginFields.querySelectorAll('input, select').forEach(el => el.disabled = true);
+                registerFields.querySelectorAll('input, select').forEach(el => el.disabled = false);
+            }
+        }
+
+        // Form Submission Handling
+        document.getElementById('buyerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const errorMessage = document.getElementById('buyerErrorMessage');
+            const successMessage = document.getElementById('buyerSuccessMessage');
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            let data;
+            let endpoint;
+
+            if (currentMode === 'login') {
+                // Login - only name and password
+                const buyerName = document.getElementById('buyerName').value.trim();
+                const password = document.getElementById('password').value;
+                
+                if (!buyerName || !password) {
+                    errorMessage.textContent = 'Please fill in all fields';
+                    errorMessage.style.display = 'block';
+                    errorMessage.style.background = '#f8d7da';
+                    errorMessage.style.color = '#721c24';
+                    errorMessage.style.padding = '15px';
+                    errorMessage.style.borderRadius = '12px';
+                    errorMessage.style.marginTop = '20px';
+                    errorMessage.style.textAlign = 'center';
+                    return;
+                }
+                
+                data = { buyerName: buyerName, password: password };
+                endpoint = '/api/buyer-login';
+            } else {
+                // Registration - all fields
+                data = {
+                    buyerName: document.getElementById('buyerNameReg').value.trim(),
+                    password: document.getElementById('passwordReg').value,
+                    businessName: document.getElementById('businessName').value,
+                    buyerPhone: document.getElementById('buyerPhone').value,
+                    requiredCrop: document.getElementById('requiredCrop').value,
+                    quantityNeeded: document.getElementById('quantityNeeded').value
+                };
+                endpoint = '/api/buyers';
+
+                if (!data.buyerName || !data.password) {
+                    errorMessage.textContent = 'Buyer name and password are required';
+                    errorMessage.style.display = 'block';
+                    errorMessage.style.background = '#f8d7da';
+                    errorMessage.style.color = '#721c24';
+                    errorMessage.style.padding = '15px';
+                    errorMessage.style.borderRadius = '12px';
+                    errorMessage.style.marginTop = '20px';
+                    errorMessage.style.textAlign = 'center';
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    successMessage.style.animation = 'slideDown 0.5s ease-out';
+
+                    if (result.redirectUrl) {
+                        setTimeout(() => {
+                            window.location.href = result.redirectUrl;
+                        }, 1500);
+                    } else if (currentMode === 'login' && result.buyer) {
+                        localStorage.setItem('buyerData', JSON.stringify(result.buyer));
+                        setTimeout(() => {
+                            if (result.redirectUrl) {
+                                window.location.href = result.redirectUrl;
+                            } else {
+                                navigateTo('buyer-market.html');
+                            }
+                        }, 1500);
+                    }
+                } else {
+                    errorMessage.textContent = result.error || 'Login failed. Please check your name and password.';
+                    errorMessage.style.display = 'block';
+                    errorMessage.style.background = '#f8d7da';
+                    errorMessage.style.color = '#721c24';
+                    errorMessage.style.padding = '15px';
+                    errorMessage.style.borderRadius = '12px';
+                    errorMessage.style.marginTop = '20px';
+                    errorMessage.style.textAlign = 'center';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = 'An error occurred. Please try again.';
+                errorMessage.style.display = 'block';
+                errorMessage.style.background = '#f8d7da';
+                errorMessage.style.color = '#721c24';
+                errorMessage.style.padding = '15px';
+                errorMessage.style.borderRadius = '12px';
+                errorMessage.style.marginTop = '20px';
+                errorMessage.style.textAlign = 'center';
+            }
+        });
+        
+        // Initialize form
+        showForm('login');
+    </script>
+</body>
+</html>
