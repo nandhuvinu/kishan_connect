@@ -1,0 +1,491 @@
+/**
+ * Kisan Connect - Accessibility & Responsive Design Utilities
+ * Ensures WCAG 2.1 compliance and mobile-first responsiveness
+ */
+
+:root {
+  /* Color Contrast - WCAG AA compliant */
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-tertiary: #757575;
+  --text-inverse: #ffffff;
+  
+  /* Focus states for keyboard navigation */
+  --focus-color: #2e7d32;
+  --focus-width: 3px;
+  --focus-offset: 2px;
+}
+
+/* =========================
+   ACCESSIBILITY UTILITIES
+   ========================= */
+
+/* Skip to main content link for screen readers */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary-green);
+  color: white;
+  padding: 8px;
+  z-index: 100;
+  border-radius: 0 0 6px 0;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Visible focus indicator for keyboard navigation */
+:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+/* Remove default focus outline on certain elements */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Screen reader only - hides visually but keeps accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Semantic heading sizes */
+h1 {
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+  line-height: 1.3;
+  margin-bottom: 1.25rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  margin-bottom: 1rem;
+}
+
+/* Color contrast - Text should be at least 4.5:1 for normal text */
+body {
+  color: var(--text-primary);
+  background-color: var(--off-white);
+  line-height: 1.6;
+}
+
+/* Improved button accessibility */
+button, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+button:hover {
+  text-decoration: underline;
+}
+
+button:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Improved link accessibility */
+a {
+  color: var(--primary-green);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--dark-green);
+}
+
+a:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+a:visited {
+  color: #6a4c93;
+}
+
+/* Form accessibility improvements */
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+input, textarea, select {
+  min-height: 40px;
+  font-size: 16px; /* Prevents zoom on iOS */
+  font-family: inherit;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  margin-right: 8px;
+  cursor: pointer;
+  min-width: 20px;
+  min-height: 20px;
+}
+
+/* Improved table accessibility */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  background-color: var(--light-gray);
+  padding: 12px;
+  border-bottom: 2px solid var(--primary-green);
+}
+
+td {
+  padding: 12px;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+tr:nth-child(even) {
+  background-color: var(--off-white);
+}
+
+/* =========================
+   MOBILE RESPONSIVE DESIGN
+   ========================= */
+
+/* Base mobile-first approach */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Responsive grid system */
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .grid-sm {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-md {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-lg {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .grid-xl {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+  }
+  
+  body {
+    font-size: 16px; /* Larger for mobile readability */
+  }
+}
+
+/* Responsive navigation */
+.nav-mobile {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .nav-mobile {
+    display: none;
+  }
+}
+
+.nav-desktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .nav-desktop {
+    display: flex;
+  }
+}
+
+/* Responsive images and media */
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Touch-friendly interaction targets */
+@media (hover: none) and (pointer: coarse) {
+  button, [role="button"], a, input, textarea, select {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* Responsive spacing */
+@media (max-width: 768px) {
+  section {
+    padding: 40px 0;
+  }
+  
+  .container {
+    padding: 0 12px;
+  }
+}
+
+@media (min-width: 769px) {
+  section {
+    padding: 80px 0;
+  }
+}
+
+/* Responsive flex layout */
+.flex {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .flex-row-md {
+    flex-direction: row;
+  }
+}
+
+/* Responsive card layout */
+.card {
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 24px;
+  }
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Responsive modal/dialog */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+@media (min-width: 768px) {
+  .modal-overlay {
+    align-items: center;
+  }
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px 8px 0 0;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .modal {
+    border-radius: 8px;
+    max-width: 500px;
+    animation: scaleIn 0.3s ease;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive hamburger menu */
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.hamburger span {
+  width: 24px;
+  height: 3px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+
+@media (min-width: 768px) {
+  .hamburger {
+    display: none;
+  }
+}
+
+/* Responsive table - stacked on mobile */
+@media (max-width: 768px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  
+  tr {
+    margin-bottom: 16px;
+    border: 1px solid var(--light-gray);
+  }
+  
+  th {
+    display: none;
+  }
+  
+  td {
+    padding-left: 40%;
+    position: relative;
+  }
+  
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 12px;
+    font-weight: 600;
+    width: 35%;
+  }
+}
+
+/* Print styles for accessibility */
+@media print {
+  .no-print {
+    display: none;
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+  
+  a::after {
+    content: " (" attr(href) ")";
+  }
+  
+  * {
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+  body {
+    --text-primary: #000000;
+    --text-secondary: #1a1a1a;
+    --text-tertiary: #4a4a4a;
+  }
+  
+  button, input, textarea, select {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1a1a1a;
+    color: var(--text-inverse);
+  }
+  
+  a {
+    color: #4caf50;
+  }
+}
