@@ -1,9 +1,22 @@
+/**
+ * Kisan Connect Server
+ * Agricultural marketplace platform connecting farmers and buyers
+ * 
+ * Features:
+ * - Farmer and Buyer registration and login
+ * - Direct marketplace matching
+ * - Contact management
+ * - Advanced search and filtering
+ * - Session-based authentication
+ */
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const crypto = require('crypto');
 const Database = require('better-sqlite3');
+const utils = require('./utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,7 +46,8 @@ app.use((req, res, next) => {
     } else {
       record.count++;
       if (record.count > MAX_REQUESTS) {
-        return res.status(429).json({ error: 'Too many requests' });
+        utils.log('WARN', 'Rate limit exceeded', { ip });
+        return res.status(429).json(utils.createResponse(429, null, 'Too many requests. Please try again later.'));
       }
     }
   }
@@ -142,18 +156,19 @@ for (const migration of migrations) {
 console.log('✅ Database initialized with indexes for optimized queries');
 
 // Helper functions
-function getTimestamp() {
-  return new Date().toISOString();
-}
-
-function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
-
+/**
+ * Generate unique session token
+ * @returns {string} Random token
+ */
 function generateToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
+/**
+ * Verify and retrieve session token
+ * @param {string} token - Session token
+ * @returns {object|null} Session object or null if invalid
+ */
 function verifyToken(token) {
   try {
     const session = db.prepare('SELECT * FROM sessions WHERE token = ?').get(token);
@@ -164,49 +179,71 @@ function verifyToken(token) {
     }
     return session;
   } catch (error) {
+    utils.log('ERROR', 'Token verification failed', error.message);
     return null;
   }
 }
 
-// Pagination helper
+/**
+ * Pagination helper
+ * @param {number} page - Page number (default 1)
+ * @param {number} limit - Items per page (default 20)
+ * @returns {object} Pagination parameters
+ */
 function paginate(page = 1, limit = 20) {
   const offset = (page - 1) * limit;
   return { limit: Math.min(limit, 100), offset };
 }
 
-// API Routes
+// ============ API Routes ============
 
-// Get all farmers
+/**
+ * GET /api/farmers - Retrieve all registered farmers
+ * @returns {array} Array of farmer objects
+ */
 app.get('/api/farmers', (req, res) => {
   try {
     const farmers = db.prepare('SELECT * FROM farmers').all();
-    res.json(farmers);
+    utils.log('INFO', 'Fetched farmers', { count: farmers.length });
+    res.json(utils.createResponse(200, farmers, 'Farmers fetched successfully'));
   } catch (error) {
-    console.error('Error fetching farmers:', error);
-    res.status(500).json({ error: 'Failed to fetch farmers' });
+    utils.log('ERROR', 'Failed to fetch farmers', error.message);
+    res.status(500).json(utils.createResponse(500, null, 'Failed to fetch farmers'));
   }
 });
 
-// Get all buyers
+/**
+ * GET /api/buyers - Retrieve all registered buyers
+ * @returns {array} Array of buyer objects
+ */
 app.get('/api/buyers', (req, res) => {
   try {
     const buyers = db.prepare('SELECT * FROM buyers').all();
-    res.json(buyers);
+    utils.log('INFO', 'Fetched buyers', { count: buyers.length });
+    res.json(utils.createResponse(200, buyers, 'Buyers fetched successfully'));
   } catch (error) {
-    console.error('Error fetching buyers:', error);
-    res.status(500).json({ error: 'Failed to fetch buyers' });
+    utils.log('ERROR', 'Failed to fetch buyers', error.message);
+    res.status(500).json(utils.createResponse(500, null, 'Failed to fetch buyers'));
   }
 });
 
-// Farmer registration (new format with location details)
+/**
+ * POST /api/farmers/register - Register new farmer with location details
+ * @param {string} farmerName - Farmer's name
+ * @param {string} password - Account password
+ * @param {object} crops - Array of crops and details
+ * @returns {object} Registered farmer data with redirect URL
+ */
 app.post('/api/farmers/register', (req, res) => {
   const { farmerName, password, pinCode, state, district, taluk, village, crops } = req.body;
 
-  if (!farmerName) {
-    return res.status(400).json({ error: 'Farmer name is required' });
+  // Validate required fields
+  const validation = utils.validateRequiredFields({ farmerName }, ['farmerName']);
+  if (!validation.valid) {
+    return res.status(400).json(utils.createResponse(400, null, validation.errors[0]));
   }
 
-  const id = Date.now().toString();
+  const id = utils.generateId();
   
   try {
     const stmt = db.prepare(`
@@ -214,16 +251,18 @@ app.post('/api/farmers/register', (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
-    stmt.run(id, farmerName, password, pinCode, state, district, taluk, village, JSON.stringify(crops || []), getTimestamp());
+    stmt.run(id, farmerName, password, pinCode, state, district, taluk, village, JSON.stringify(crops || []), utils.getTimestamp());
 
-    res.status(201).json({
-      message: 'Farmer registered successfully',
-      redirectUrl: `/farmer-dashboard.html?id=${id}`,
-      farmer: { id, farmerName, password, pinCode, state, district, taluk, village, crops: crops || [], registeredAt: getTimestamp() }
-    });
+    utils.log('INFO', 'New farmer registered', { id, farmerName });
+    res.status(201).json(utils.createResponse(201, {
+      id,
+      farmerName,
+      registeredAt: utils.getTimestamp(),
+      redirectUrl: `/farmer-dashboard.html?id=${id}`
+    }, 'Farmer registered successfully'));
   } catch (error) {
-    console.error('Error registering farmer:', error);
-    res.status(500).json({ error: 'Failed to register farmer' });
+    utils.log('ERROR', 'Farmer registration failed', error.message);
+    res.status(500).json(utils.createResponse(500, null, 'Failed to register farmer'));
   }
 });
 
