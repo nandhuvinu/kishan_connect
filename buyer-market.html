@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buyer Market - Kisan Connect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root {
+            --primary-green: #2e7d32; --light-green: #4caf50; --dark-green: #1b5e20;
+            --accent-orange: #ff6b35; --sunset-orange: #f7931e; --white: #ffffff;
+            --off-white: #f9f9f9; --gray: #757575; --light-gray: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1); --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.2);
+            --gradient-sunset: linear-gradient(135deg, var(--accent-orange), var(--sunset-orange));
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        html { scroll-behavior: smooth; }
+        body { color: #333; background-color: var(--off-white); line-height: 1.6; opacity: 0; animation: fadeInPage 0.8s ease-out 0.2s forwards; }
+        @keyframes fadeInPage { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header { background-color: var(--white); box-shadow: var(--shadow); position: fixed; width: 100%; top: 0; z-index: 1000; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; }
+        .logo { font-size: 1.8rem; font-weight: 700; color: var(--primary-green); display: flex; align-items: center; cursor: pointer; transition: var(--transition); }
+        .logo:hover { color: var(--accent-orange); }
+        .logo i { margin-right: 10px; font-size: 2rem; }
+        nav ul { display: flex; list-style: none; }
+        nav ul li { margin-left: 30px; }
+        nav ul li a { text-decoration: none; color: var(--dark-green); font-weight: 600; font-size: 1rem; transition: var(--transition); cursor: pointer; }
+        nav ul li a:hover { color: var(--accent-orange); }
+        .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; color: var(--primary-green); cursor: pointer; }
+        
+        /* Hero Section */
+        .market-hero {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.9), rgba(247, 147, 30, 0.8)),
+                url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            color: white;
+            padding: 120px 20px 60px;
+            text-align: center;
+        }
+        .market-hero h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .buyer-info { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; max-width: 500px; margin: 20px auto; }
+        .buyer-info p { margin: 5px 0; font-size: 1rem; }
+        .buyer-info .crop-badge { background: var(--gradient-sunset); padding: 5px 15px; border-radius: 20px; font-weight: 600; display: inline-block; margin-top: 10px; }
+        
+        /* Main Content */
+        main { padding: 40px 20px; margin-top: 80px; }
+        .section-title { text-align: center; margin-bottom: 30px; color: var(--dark-green); font-size: 1.8rem; }
+        .section-title i { margin-right: 10px; color: var(--accent-orange); }
+        
+        /* Table Styles */
+        .table-container { overflow-x: auto; background: white; border-radius: 15px; box-shadow: var(--shadow-xl); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--gradient-sunset); color: white; padding: 15px; text-align: left; font-weight: 600; white-space: nowrap; }
+        td { padding: 15px; border-bottom: 1px solid var(--light-gray); }
+        tr:hover { background-color: #f8f9fa; }
+        tr:last-child td { border-bottom: none; }
+        
+        .contact-btn {
+            background: var(--gradient-sunset); border: none; color: white; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: 600; transition: var(--transition);
+        }
+        .contact-btn:hover { transform: scale(1.05); box-shadow: var(--shadow); }
+        
+        /* No Results Message */
+        .no-results { text-align: center; padding: 60px 20px; color: var(--gray); }
+        .no-results i { font-size: 4rem; margin-bottom: 20px; color: var(--light-gray); }
+        .no-results h3 { margin-bottom: 10px; color: var(--dark-green); }
+        
+        /* Loading */
+        .loading { text-align: center; padding: 60px 20px; }
+        .loading i { font-size: 3rem; color: var(--primary-green); animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: block; }
+            nav ul { position: fixed; top: 70px; left: 0; width: 100%; background: white; flex-direction: column; align-items: center; padding: 20px 0; box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1); transform: translateY(-100%); opacity: 0; visibility: hidden; transition: var(--transition); z-index: 999; }
+            nav ul.show { transform: translateY(0); opacity: 1; visibility: visible; }
+            nav ul li { margin: 15px 0; }
+            .market-hero h1 { font-size: 1.8rem; }
+            th, td { padding: 10px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo" onclick="navigateTo('index.html')"><i class="fas fa-tractor"></i> Kisan Connect</div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+            <nav><ul id="navMenu"><li><a onclick="navigateTo('index.html')">Home</a></li><li><a onclick="navigateTo('farmers.html')">Farmers</a></li><li><a onclick="navigateTo('buyers.html')">Buyers</a></li><li><a onclick="navigateTo('contact.html')">Contact</a></li></ul></nav>
+        </div>
+    </header>
+
+    <section class="market-hero">
+        <div class="container">
+            <h1><i class="fas fa-store"></i> Seller Market</h1>
+            <div class="buyer-info" id="buyerInfo">
+                <p>Loading buyer information...</p>
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <div class="container">
+            <h2 class="section-title"><i class="fas fa-users"></i> Available Sellers (Farmers)</h2>
+            <div id="loadingIndicator" class="loading"><i class="fas fa-spinner"></i><p>Loading sellers...</p></div>
+            <div class="table-container" id="sellersTable" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-user"></i> Farmer Name</th>
+                            <th><i class="fas fa-leaf"></i> Crop Type</th>
+                            <th><i class="fas fa-weight"></i> Quantity (kg)</th>
+                            <th><i class="fas fa-rupee-sign"></i> Price/kg</th>
+                            <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                            <th><i class="fas fa-phone"></i> Contact</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sellersList"></tbody>
+                </table>
+            </div>
+            <div id="noResults" class="no-results" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h3>No Matching Crops Found</h3>
+                <p>There are no farmers currently registered with the crop you need.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Get buyerId from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const buyerId = urlParams.get('id');
+
+        // Page Navigation
+        function navigateTo(page) { window.location.href = page; }
+
+        // Mobile Menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navMenu = document.getElementById('navMenu');
+        mobileMenuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('show');
+            mobileMenuBtn.innerHTML = navMenu.classList.contains('show') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', () => { navMenu.classList.remove('show'); mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>'; });
+        });
+
+        // Contact farmer
+        function contactFarmer(phoneNumber) {
+            if (phoneNumber && phoneNumber !== 'N/A') {
+                window.open('tel:' + phoneNumber, '_blank');
+            } else {
+                alert('Phone number not available');
+            }
+        }
+
+        // Fetch and display matching farmers
+        async function loadMarketData() {
+            if (!buyerId) {
+                document.getElementById('buyerInfo').innerHTML = '<p style="color: red;">Error: No buyer ID provided. Please register first.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/buyer/' + encodeURIComponent(buyerId) + '/matching-farmers');
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to fetch data');
+                }
+
+                // Display buyer info
+                const buyerInfo = document.getElementById('buyerInfo');
+                buyerInfo.innerHTML = '<p><strong>Buyer ID:</strong> ' + buyerId + '</p>' +
+                    '<span class="crop-badge">Looking for matching farmers</span>';
+
+                // Hide loading, show table or no results
+                document.getElementById('loadingIndicator').style.display = 'none';
+
+                if (data.length > 0) {
+                    document.getElementById('sellersTable').style.display = 'block';
+                    document.getElementById('sellersList').innerHTML = data.map(farmer => 
+                        '<tr>' +
+                            '<td><i class="fas fa-user" style="color: var(--primary-green);"></i> ' + escapeHtml(farmer.farmerName) + '</td>' +
+                            '<td><span style="background: #e8f5e9; padding: 5px 10px; border-radius: 15px; color: var(--dark-green); font-weight: 600;">' + escapeHtml(farmer.cropType) + '</span></td>' +
+                            '<td>' + farmer.quantity + ' kg</td>' +
+                            '<td><i class="fas fa-rupee-sign"></i> ' + farmer.price + '</td>' +
+                            '<td>' + escapeHtml(farmer.villageDistrict || farmer.district || 'N/A') + '</td>' +
+                            '<td>' + (farmer.phoneNumber || 'N/A') + '</td>' +
+                            '<td><button class="contact-btn" onclick="contactFarmer(\'' + (farmer.phoneNumber || '') + '\')"><i class="fas fa-phone"></i> Contact</button></td>' +
+                        '</tr>'
+                    ).join('');
+                } else {
+                    document.getElementById('noResults').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingIndicator').innerHTML = '<i class="fas fa-exclamation-triangle" style="color: var(--accent-orange);"></i><p>Error loading data: ' + error.message + '</p>';
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load data on page load
+        loadMarketData();
+    </script>
+</body>
+</html>
