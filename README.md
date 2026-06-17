@@ -89,16 +89,9 @@ kisan-connect/
 ├── server.js               # Express server (Node.js backend)
 ├── package.json            # Node.js dependencies
 ├── image-prompts.txt       # AI image generation prompts
-├── farmers.json            # Farmer registration data storage
-├── buyers.json             # Buyer registration data storage
-├── contacts.json           # Contact messages storage
-├── images/                 # Gallery images (to be added)
-│   ├── gallery-1.jpg
-│   ├── gallery-2.jpg
-│   ├── gallery-3.jpg
-│   ├── gallery-4.jpg
-│   └── gallery-5.jpg
-└── README.md              # This file
+├── kisan_connect.db        # SQLite database storage
+├── images/                 # Gallery images (optional; add your own)
+└── README.md               # This file
 ```
 
 ## API Endpoints
@@ -109,13 +102,36 @@ kisan-connect/
 - `GET /api/farmers` - Get all farmers
 - `GET /api/buyers` - Get all buyers
 - `GET /api/contacts` - Get all contact messages
-- `GET /api/matches/:cropType` - Get farmers and buyers for a specific crop
+- `GET /api/sellers` - Get all farmer sellers
+- `GET /api/buyers/demands` - Get all buyer demands
+
+## Code Quality & Performance Optimizations
+
+### Frontend Performance
+- **Double-submit prevention**: Form submit buttons are disabled during submission
+- **GPU-accelerated animations**: CSS transforms use `will-change` and `transform: translateZ(0)` for smooth 60fps animations
+- **Optimized DOM updates**: `requestAnimationFrame` used for message display rendering
+- **Responsive forms**: All inputs include validation patterns and autocomplete attributes
+- **Accessible UI**: Full ARIA support for screen readers, dynamic `aria-expanded` states
+
+### Backend Performance
+- **SQLite WAL mode**: Write-Ahead Logging for concurrent database access
+- **Database indexing**: Indexes on frequently queried columns (farmerName, cropType, location, token, userId)
+- **Rate limiting**: 100 requests per 60 seconds per IP to prevent abuse
+- **Input validation**: Server-side validation for phone numbers, emails, and numeric fields
+- **Connection pooling**: Better-sqlite3 with synchronous = NORMAL pragma for optimized throughput
+
+### Code Organization
+- **Comprehensive JSDoc comments**: All helper functions documented with parameter types and return values
+- **Organized route sections**: Routes grouped by functionality with clear headers
+- **Centralized validation**: Reusable validation helpers (`isValidEmail`, `isValidPhone`, `parsePositiveInt`, `parsePositiveFloat`)
+- **Error handling**: Try-catch blocks on all routes with console logging for debugging
 
 ## Technology Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Backend**: Node.js, Express.js
-- **Data Storage**: JSON files (for development/demo)
+- **Data Storage**: SQLite database (`kisan_connect.db`)
 - **Icons**: Font Awesome
 - **Styling**: CSS Grid, Flexbox, Custom CSS
 

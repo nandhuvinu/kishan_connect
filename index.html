@@ -477,6 +477,9 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(255, 255, 255, 0.8);
             position: relative;
+            /* GPU acceleration for smooth animations */
+            will-change: transform, box-shadow;
+            transform: translateZ(0);
         }
 
         .gallery-item::before {
@@ -777,6 +780,17 @@
             display: none;
         }
 
+        .error-message {
+            background-color: #f8d7da;
+            color: #842029;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            border: 1px solid #f5c2c7;
+        }
+
         /* Responsive Design */
         @media (max-width: 992px) {
             .hero h1 {
@@ -873,22 +887,21 @@
     <!-- Header -->
     <header>
         <div class="container header-container">
-            <div class="logo" onclick="navigateTo('index.html')">
+            <a class="logo" href="#home" aria-label="Go to homepage">
                 <i class="fas fa-tractor"></i>
                 Kisan Connect
-            </div>
-            <button class="mobile-menu-btn" id="mobileMenuBtn">
+            </a>
+            <button type="button" class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open navigation menu" aria-controls="navMenu" aria-expanded="false">
                 <i class="fas fa-bars"></i>
             </button>
             <nav>
-                <ul id="navMenu">
-                    <li><a onclick="navigateTo('index.html')">Home</a></li>
-                    <li><a onclick="navigateTo('farmers.html')">Farmers</a></li>
-                    <li><a onclick="navigateTo('buyers.html')">Buyers</a></li>
-                    <li><a onclick="navigateTo('gallery.html')">Gallery</a></li>
-                    <li><a onclick="navigateTo('services.html')">Services</a></li>
-                    <li><a onclick="navigateTo('about.html')">About</a></li>
-                    <li><a onclick="navigateTo('contact.html')">Contact</a></li>
+                <ul id="navMenu" aria-label="Primary navigation">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#farmers">Farmers</a></li>
+                    <li><a href="#buyers">Buyers</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
                 </ul>
             </nav>
         </div>
@@ -900,8 +913,8 @@
             <h1>Connecting Farmers & Buyers Directly</h1>
             <p>A transparent platform for selling and buying farm produce. Eliminate middlemen and get fair prices for your crops.</p>
             <div class="hero-buttons">
-                <button onclick="navigateTo('farmers.html')" class="btn">Join as Farmer</button>
-                <button onclick="navigateTo('buyers.html')" class="btn btn-outline">Join as Buyer</button>
+                <button type="button" onclick="navigateTo('#farmers')" class="btn" aria-label="Jump to Farmer registration">Join as Farmer</button>
+                <button type="button" onclick="navigateTo('#buyers')" class="btn btn-outline" aria-label="Jump to Buyer registration">Join as Buyer</button>
             </div>
         </div>
     </section>
@@ -934,7 +947,7 @@
                         </div>
                         <div class="form-group">
                             <label for="phoneNumber">Phone Number</label>
-                            <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Enter your phone number" required>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Enter your phone number" pattern="[0-9]{10,12}" inputmode="numeric" autocomplete="tel" required>
                         </div>
                         <div class="form-group">
                             <label for="cropType">Crop Type</label>
@@ -952,17 +965,18 @@
                         </div>
                         <div class="form-group">
                             <label for="quantity">Quantity (in kg)</label>
-                            <input type="number" id="quantity" name="quantity" placeholder="Enter quantity in kg" required>
+                            <input type="number" id="quantity" name="quantity" placeholder="Enter quantity in kg" min="1" required>
                         </div>
                         <div class="form-group">
                             <label for="price">Price Per Kg (₹)</label>
-                            <input type="number" id="price" name="price" placeholder="Enter price per kg" required>
+                            <input type="number" id="price" name="price" placeholder="Enter price per kg" min="1" step="0.01" required>
                         </div>
                         <button type="submit" class="btn form-submit-btn">Submit Details</button>
                     </form>
-                    <div class="success-message" id="farmerSuccessMessage">
+                    <div class="success-message" id="farmerSuccessMessage" role="status" aria-live="polite">
                         Thank you for registering! Buyers will contact you soon.
                     </div>
+                    <div class="error-message" id="farmerErrorMessage" role="alert" aria-live="assertive"></div>
                 </div>
             </div>
         </div>
@@ -980,7 +994,7 @@
                     <form id="buyerForm">
                         <div class="form-group">
                             <label for="buyerName">Buyer Name</label>
-                            <input type="text" id="buyerName" name="buyerName" placeholder="Enter your full name" required>
+                            <input type="text" id="buyerName" name="buyerName" placeholder="Enter your full name" autocomplete="name" required>
                         </div>
                         <div class="form-group">
                             <label for="businessName">Business / Shop Name</label>
@@ -988,7 +1002,7 @@
                         </div>
                         <div class="form-group">
                             <label for="buyerPhone">Phone Number</label>
-                            <input type="tel" id="buyerPhone" name="buyerPhone" placeholder="Enter your phone number" required>
+                            <input type="tel" id="buyerPhone" name="buyerPhone" placeholder="Enter your phone number" pattern="[0-9]{10,12}" inputmode="numeric" autocomplete="tel" required>
                         </div>
                         <div class="form-group">
                             <label for="requiredCrop">Required Crop</label>
@@ -1006,13 +1020,14 @@
                         </div>
                         <div class="form-group">
                             <label for="quantityNeeded">Quantity Needed (in kg)</label>
-                            <input type="number" id="quantityNeeded" name="quantityNeeded" placeholder="Enter quantity needed" required>
+                            <input type="number" id="quantityNeeded" name="quantityNeeded" placeholder="Enter quantity needed" min="1" required>
                         </div>
                         <button type="submit" class="btn form-submit-btn">Submit Details</button>
                     </form>
-                    <div class="success-message" id="buyerSuccessMessage">
+                    <div class="success-message" id="buyerSuccessMessage" role="status" aria-live="polite">
                         Thank you for registering! We'll connect you with farmers soon.
                     </div>
+                    <div class="error-message" id="buyerErrorMessage" role="alert" aria-live="assertive"></div>
                 </div>
 
                 <div class="section-description">
@@ -1156,7 +1171,7 @@
                         </div>
                         <div class="form-group">
                             <label for="contactEmail">Your Email</label>
-                            <input type="email" id="contactEmail" name="contactEmail" placeholder="Enter your email" required>
+                            <input type="email" id="contactEmail" name="contactEmail" placeholder="Enter your email" autocomplete="email" required>
                         </div>
                         <div class="form-group">
                             <label for="contactSubject">Subject</label>
@@ -1168,9 +1183,10 @@
                         </div>
                         <button type="submit" class="btn form-submit-btn">Send Message</button>
                     </form>
-                    <div class="success-message" id="contactSuccessMessage">
+                    <div class="success-message" id="contactSuccessMessage" role="status" aria-live="polite">
                         Thank you for your message! We'll get back to you soon.
                     </div>
+                    <div class="error-message" id="contactErrorMessage" role="alert" aria-live="assertive"></div>
                 </div>
             </div>
         </div>
@@ -1224,7 +1240,18 @@
             transition.classList.add('active');
 
             setTimeout(() => {
-                window.location.href = page;
+                if (page.startsWith('#')) {
+                    const targetElement = document.querySelector(page);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        history.pushState(null, '', page);
+                    } else {
+                        window.location.hash = page;
+                    }
+                    transition.classList.remove('active');
+                } else {
+                    window.location.href = page;
+                }
             }, 800);
         }
 
@@ -1232,11 +1259,21 @@
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const navMenu = document.getElementById('navMenu');
 
+        function showMessage(element, message) {
+            if (!element) return;
+            // Use requestAnimationFrame for better performance
+            requestAnimationFrame(() => {
+                element.textContent = message;
+                element.style.display = message ? 'block' : 'none';
+            });
+        }
+
         mobileMenuBtn.addEventListener('click', () => {
-            navMenu.classList.toggle('show');
-            mobileMenuBtn.innerHTML = navMenu.classList.contains('show')
+            const isOpen = navMenu.classList.toggle('show');
+            mobileMenuBtn.innerHTML = isOpen
                 ? '<i class="fas fa-times"></i>'
                 : '<i class="fas fa-bars"></i>';
+            mobileMenuBtn.setAttribute('aria-expanded', isOpen.toString());
         });
 
         // Close mobile menu when clicking a link
@@ -1244,6 +1281,7 @@
             link.addEventListener('click', () => {
                 navMenu.classList.remove('show');
                 mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                mobileMenuBtn.setAttribute('aria-expanded', 'false');
             });
         });
 
@@ -1268,8 +1306,16 @@
         // Form Submission Handling
         document.getElementById('farmerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            // Disable button to prevent double submissions
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
 
             const formData = new FormData(this);
+            const successMessage = document.getElementById('farmerSuccessMessage');
+            const errorMessage = document.getElementById('farmerErrorMessage');
+            showMessage(successMessage, '');
+            showMessage(errorMessage, '');
+
             const data = {
                 farmerName: formData.get('farmerName'),
                 villageDistrict: formData.get('villageDistrict'),
@@ -1291,27 +1337,37 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    const successMessage = document.getElementById('farmerSuccessMessage');
-                    successMessage.style.display = 'block';
+                    showMessage(successMessage, 'Thank you for registering! Buyers will contact you soon.');
                     this.reset();
 
-                    // Hide success message after 5 seconds
                     setTimeout(() => {
-                        successMessage.style.display = 'none';
+                        showMessage(successMessage, '');
                     }, 5000);
                 } else {
-                    alert('Error: ' + result.error);
+                    showMessage(errorMessage, result.error || 'Error submitting farmer registration.');
+                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                showMessage(errorMessage, 'An error occurred. Please try again.');
+                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } finally {
+                // Re-enable submit button
+                submitBtn.disabled = false;
             }
         });
 
         document.getElementById('buyerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
 
             const formData = new FormData(this);
+            const successMessage = document.getElementById('buyerSuccessMessage');
+            const errorMessage = document.getElementById('buyerErrorMessage');
+            showMessage(successMessage, '');
+            showMessage(errorMessage, '');
+
             const data = {
                 buyerName: formData.get('buyerName'),
                 businessName: formData.get('businessName'),
@@ -1332,27 +1388,36 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    const successMessage = document.getElementById('buyerSuccessMessage');
-                    successMessage.style.display = 'block';
+                    showMessage(successMessage, 'Thank you for registering! We will connect you with farmers soon.');
                     this.reset();
 
-                    // Hide success message after 5 seconds
                     setTimeout(() => {
-                        successMessage.style.display = 'none';
+                        showMessage(successMessage, '');
                     }, 5000);
                 } else {
-                    alert('Error: ' + result.error);
+                    showMessage(errorMessage, result.error || 'Error submitting buyer registration.');
+                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                showMessage(errorMessage, 'An error occurred. Please try again.');
+                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } finally {
+                submitBtn.disabled = false;
             }
         });
 
         document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
 
             const formData = new FormData(this);
+            const successMessage = document.getElementById('contactSuccessMessage');
+            const errorMessage = document.getElementById('contactErrorMessage');
+            showMessage(successMessage, '');
+            showMessage(errorMessage, '');
+
             const data = {
                 contactName: formData.get('contactName'),
                 contactEmail: formData.get('contactEmail'),
@@ -1372,20 +1437,22 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    const successMessage = document.getElementById('contactSuccessMessage');
-                    successMessage.style.display = 'block';
+                    showMessage(successMessage, 'Thank you for your message! We will get back to you soon.');
                     this.reset();
 
-                    // Hide success message after 5 seconds
                     setTimeout(() => {
-                        successMessage.style.display = 'none';
+                        showMessage(successMessage, '');
                     }, 5000);
                 } else {
-                    alert('Error: ' + result.error);
+                    showMessage(errorMessage, result.error || 'Error submitting contact message.');
+                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                showMessage(errorMessage, 'An error occurred. Please try again.');
+                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } finally {
+                submitBtn.disabled = false;
             }
         });
 

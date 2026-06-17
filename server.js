@@ -1,27 +1,29 @@
-/**
- * Kisan Connect Server
- * Agricultural marketplace platform connecting farmers and buyers
- * 
- * Features:
- * - Farmer and Buyer registration and login
- * - Direct marketplace matching
- * - Contact management
- * - Advanced search and filtering
- * - Session-based authentication
- */
-
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const crypto = require('crypto');
 const Database = require('better-sqlite3');
-const utils = require('./utils');
+
+/**
+ * Kisan Connect Backend Server
+ * A comprehensive agricultural marketplace platform connecting farmers directly with buyers.
+ * 
+ * Features:
+ * - Farmer and buyer registration with validation
+ * - Contact form submission handling
+ * - Real-time farmer-buyer matching
+ * - Rate limiting for API protection
+ * - SQLite database with WAL mode for concurrent access
+ * - Comprehensive error handling and logging
+ */
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Rate limiting configuration
+// ==========================================
+// RATE LIMITING & SECURITY CONFIGURATION
+// ==========================================
 const rateLimit = new Map();
 const MAX_REQUESTS = 100;
 const WINDOW_MS = 60000; // 1 minute
@@ -46,8 +48,7 @@ app.use((req, res, next) => {
     } else {
       record.count++;
       if (record.count > MAX_REQUESTS) {
-        utils.log('WARN', 'Rate limit exceeded', { ip });
-        return res.status(429).json(utils.createResponse(429, null, 'Too many requests. Please try again later.'));
+        return res.status(429).json({ error: 'Too many requests' });
       }
     }
   }
@@ -155,19 +156,39 @@ for (const migration of migrations) {
 
 console.log('✅ Database initialized with indexes for optimized queries');
 
-// Helper functions
+// ==========================================
+// UTILITY & HELPER FUNCTIONS
+// ==========================================
+
 /**
- * Generate unique session token
- * @returns {string} Random token
+ * Get ISO 8601 timestamp for database records
+ * @returns {string} ISO timestamp string
+ */
+function getTimestamp() {
+  return new Date().toISOString();
+}
+
+/**
+ * Hash password using SHA256
+ * @param {string} password - Plain text password to hash
+ * @returns {string} SHA256 hash hex string
+ */
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
+
+/**
+ * Generate cryptographically secure random token
+ * @returns {string} Random hex token (64 characters)
  */
 function generateToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
 /**
- * Verify and retrieve session token
- * @param {string} token - Session token
- * @returns {object|null} Session object or null if invalid
+ * Verify session token validity and expiration
+ * @param {string} token - Session token to verify
+ * @returns {object|null} Session object if valid, null if invalid or expired
  */
 function verifyToken(token) {
   try {
@@ -179,71 +200,96 @@ function verifyToken(token) {
     }
     return session;
   } catch (error) {
-    utils.log('ERROR', 'Token verification failed', error.message);
     return null;
   }
 }
 
 /**
- * Pagination helper
- * @param {number} page - Page number (default 1)
- * @param {number} limit - Items per page (default 20)
- * @returns {object} Pagination parameters
+ * Validate email format using regex pattern
+ * @param {string} email - Email address to validate
+ * @returns {boolean} True if valid email format
+ */
+function isValidEmail(email) {
+  return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+/**
+ * Validate phone number (10-15 digits)
+ * @param {string|number} phone - Phone number to validate
+ * @returns {boolean} True if valid phone format
+ */
+function isValidPhone(phone) {
+  const digits = String(phone).replace(/\D/g, '');
+  return /^[0-9]{10,15}$/.test(digits);
+}
+
+/**
+ * Parse and validate positive integer
+ * @param {any} value - Value to parse
+ * @returns {number|null} Positive integer or null if invalid
+ */
+function parsePositiveInt(value) {
+  const parsed = parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+/**
+ * Parse and validate positive float
+ * @param {any} value - Value to parse
+ * @returns {number|null} Positive float or null if invalid
+ */
+function parsePositiveFloat(value) {
+  const parsed = parseFloat(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+/**
+ * Calculate pagination offset and limit
+ * @param {number} page - Page number (1-indexed)
+ * @param {number} limit - Items per page (capped at 100)
+ * @returns {object} {limit, offset} for database queries
  */
 function paginate(page = 1, limit = 20) {
   const offset = (page - 1) * limit;
   return { limit: Math.min(limit, 100), offset };
 }
 
-// ============ API Routes ============
-
-/**
- * GET /api/farmers - Retrieve all registered farmers
- * @returns {array} Array of farmer objects
- */
+// ==========================================
+// API ROUTES - CORE ENDPOINTS
+// ==========================================
+// Get all farmers
+// @route    GET /api/farmers
+// @returns  Array of farmer records with crop details
 app.get('/api/farmers', (req, res) => {
   try {
     const farmers = db.prepare('SELECT * FROM farmers').all();
-    utils.log('INFO', 'Fetched farmers', { count: farmers.length });
-    res.json(utils.createResponse(200, farmers, 'Farmers fetched successfully'));
+    res.json(farmers);
   } catch (error) {
-    utils.log('ERROR', 'Failed to fetch farmers', error.message);
-    res.status(500).json(utils.createResponse(500, null, 'Failed to fetch farmers'));
+    console.error('Error fetching farmers:', error);
+    res.status(500).json({ error: 'Failed to fetch farmers' });
   }
 });
 
-/**
- * GET /api/buyers - Retrieve all registered buyers
- * @returns {array} Array of buyer objects
- */
+// Get all buyers
 app.get('/api/buyers', (req, res) => {
   try {
     const buyers = db.prepare('SELECT * FROM buyers').all();
-    utils.log('INFO', 'Fetched buyers', { count: buyers.length });
-    res.json(utils.createResponse(200, buyers, 'Buyers fetched successfully'));
+    res.json(buyers);
   } catch (error) {
-    utils.log('ERROR', 'Failed to fetch buyers', error.message);
-    res.status(500).json(utils.createResponse(500, null, 'Failed to fetch buyers'));
+    console.error('Error fetching buyers:', error);
+    res.status(500).json({ error: 'Failed to fetch buyers' });
   }
 });
 
-/**
- * POST /api/farmers/register - Register new farmer with location details
- * @param {string} farmerName - Farmer's name
- * @param {string} password - Account password
- * @param {object} crops - Array of crops and details
- * @returns {object} Registered farmer data with redirect URL
- */
+// Farmer registration (new format with location details)
 app.post('/api/farmers/register', (req, res) => {
   const { farmerName, password, pinCode, state, district, taluk, village, crops } = req.body;
 
-  // Validate required fields
-  const validation = utils.validateRequiredFields({ farmerName }, ['farmerName']);
-  if (!validation.valid) {
-    return res.status(400).json(utils.createResponse(400, null, validation.errors[0]));
+  if (!farmerName) {
+    return res.status(400).json({ error: 'Farmer name is required' });
   }
 
-  const id = utils.generateId();
+  const id = Date.now().toString();
   
   try {
     const stmt = db.prepare(`
@@ -251,27 +297,43 @@ app.post('/api/farmers/register', (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
-    stmt.run(id, farmerName, password, pinCode, state, district, taluk, village, JSON.stringify(crops || []), utils.getTimestamp());
+    stmt.run(id, farmerName, password, pinCode, state, district, taluk, village, JSON.stringify(crops || []), getTimestamp());
 
-    utils.log('INFO', 'New farmer registered', { id, farmerName });
-    res.status(201).json(utils.createResponse(201, {
-      id,
-      farmerName,
-      registeredAt: utils.getTimestamp(),
-      redirectUrl: `/farmer-dashboard.html?id=${id}`
-    }, 'Farmer registered successfully'));
+    res.status(201).json({
+      message: 'Farmer registered successfully',
+      redirectUrl: `/farmer-dashboard.html?id=${id}`,
+      farmer: { id, farmerName, password, pinCode, state, district, taluk, village, crops: crops || [], registeredAt: getTimestamp() }
+    });
   } catch (error) {
-    utils.log('ERROR', 'Farmer registration failed', error.message);
-    res.status(500).json(utils.createResponse(500, null, 'Failed to register farmer'));
+    console.error('Error registering farmer:', error);
+    res.status(500).json({ error: 'Failed to register farmer' });
   }
 });
 
-// Farmer registration (old format for backward compatibility)
+// ==========================================
+// FARMER REGISTRATION ROUTES
+// ==========================================
+// Register a new farmer (primary endpoint)
+// @route    POST /api/farmers
+// @body     {farmerName, villageDistrict, phoneNumber, cropType, quantity, price}
+// @validates Phone number (10-15 digits), positive quantity, positive price
 app.post('/api/farmers', (req, res) => {
   const { farmerName, villageDistrict, phoneNumber, cropType, quantity, price } = req.body;
 
   if (!farmerName || !villageDistrict || !phoneNumber || !cropType || !quantity || !price) {
     return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  const quantityValue = parsePositiveInt(quantity);
+  const priceValue = parsePositiveFloat(price);
+  const cleanedPhone = String(phoneNumber).replace(/\D/g, '');
+
+  if (quantityValue === null || priceValue === null) {
+    return res.status(400).json({ error: 'Quantity and price must be valid positive numbers' });
+  }
+
+  if (!isValidPhone(cleanedPhone)) {
+    return res.status(400).json({ error: 'Phone number must contain 10 to 15 digits' });
   }
 
   const id = Date.now().toString();
@@ -282,12 +344,12 @@ app.post('/api/farmers', (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
-    stmt.run(id, farmerName, villageDistrict, phoneNumber, cropType, parseInt(quantity), parseFloat(price), getTimestamp());
+    stmt.run(id, farmerName, villageDistrict, cleanedPhone, cropType, quantityValue, priceValue, getTimestamp());
 
     res.status(201).json({
       message: 'Farmer registered successfully',
       redirectUrl: `/farmer-dashboard.html?id=${id}`,
-      farmer: { id, farmerName, villageDistrict, phoneNumber, cropType, quantity: parseInt(quantity), price: parseFloat(price), registeredAt: getTimestamp() }
+      farmer: { id, farmerName, villageDistrict, phoneNumber: cleanedPhone, cropType, quantity: quantityValue, price: priceValue, registeredAt: getTimestamp() }
     });
   } catch (error) {
     console.error('Error registering farmer:', error);
@@ -295,12 +357,30 @@ app.post('/api/farmers', (req, res) => {
   }
 });
 
-// Buyer registration
+// ==========================================
+// BUYER REGISTRATION ROUTES
+// ==========================================
+// Register a new buyer
+// @route    POST /api/buyers
+// @body     {buyerName, businessName, buyerPhone, requiredCrop, quantityNeeded}
+// @validates Phone number (10-15 digits), positive quantity
 app.post('/api/buyers', (req, res) => {
-  const { buyerName, password, businessName, buyerPhone, requiredCrop, quantityNeeded } = req.body;
+  const { buyerName, password = '', businessName, buyerPhone, requiredCrop, quantityNeeded } = req.body;
 
-  if (!buyerName || !password) {
-    return res.status(400).json({ error: 'Buyer name and password are required' });
+  if (!buyerName || !businessName || !buyerPhone || !requiredCrop || !quantityNeeded) {
+    return res.status(400).json({ error: 'All fields are required for buyer registration' });
+  }
+
+  const quantityValue = parsePositiveInt(quantityNeeded);
+  const cleanedPhone = String(buyerPhone).replace(/\D/g, '');
+  const passwordValue = typeof password === 'string' ? password : '';
+
+  if (quantityValue === null) {
+    return res.status(400).json({ error: 'Quantity needed must be a valid positive number' });
+  }
+
+  if (!isValidPhone(cleanedPhone)) {
+    return res.status(400).json({ error: 'Phone number must contain 10 to 15 digits' });
   }
 
   const id = Date.now().toString();
@@ -311,12 +391,12 @@ app.post('/api/buyers', (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
-    stmt.run(id, buyerName, password, businessName, buyerPhone, requiredCrop, parseInt(quantityNeeded || 0), getTimestamp());
+    stmt.run(id, buyerName, passwordValue, businessName, cleanedPhone, requiredCrop, quantityValue, getTimestamp());
 
     res.status(201).json({
       message: 'Buyer registered successfully',
       redirectUrl: `/buyer-market.html?id=${id}`,
-      buyer: { id, buyerName, password, businessName, buyerPhone, requiredCrop, quantityNeeded: parseInt(quantityNeeded || 0), registeredAt: getTimestamp() }
+      buyer: { id, buyerName, businessName, buyerPhone: cleanedPhone, requiredCrop, quantityNeeded: quantityValue, registeredAt: getTimestamp() }
     });
   } catch (error) {
     console.error('Error registering buyer:', error);
@@ -324,12 +404,22 @@ app.post('/api/buyers', (req, res) => {
   }
 });
 
-// Contact form submission
+// ==========================================
+// CONTACT FORM ROUTES
+// ==========================================
+// Submit contact form message
+// @route    POST /api/contact
+// @body     {contactName, contactEmail, contactSubject, contactMessage}
+// @validates Email format validation
 app.post('/api/contact', (req, res) => {
   const { contactName, contactEmail, contactSubject, contactMessage } = req.body;
 
   if (!contactName || !contactEmail || !contactSubject || !contactMessage) {
     return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  if (!isValidEmail(contactEmail)) {
+    return res.status(400).json({ error: 'A valid email address is required' });
   }
 
   const id = Date.now().toString();
@@ -942,7 +1032,17 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start server
+// ==========================================
+// SERVER INITIALIZATION & STARTUP
+// ==========================================
+
+/**
+ * Start the Express server on configured port
+ * Features:
+ * - Binds to all network interfaces (0.0.0.0) for remote access
+ * - Automatic port fallback if primary port is in use
+ * - Graceful error handling and logging
+ */
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Kisan Connect server running on:`);
   console.log(`   Local: http://localhost:${PORT}`);
@@ -950,6 +1050,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`📊 Database: ${path.join(__dirname, 'kisan_connect.db')}`);
 });
 
+// Error handling for port conflicts
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     const newPort = parseInt(PORT) + 1;
@@ -965,4 +1066,4 @@ server.on('error', (err) => {
     console.error('Server error:', err);
     process.exit(1);
   }
-});
+}););
